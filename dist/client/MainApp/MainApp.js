@@ -132,7 +132,7 @@ function MainPage(props) {
         let newRotation = If(tile.rotation == 0, 3, () => tile.rotation - 1)
         return SetWithUpdates(Tiles, tileIndex, {rotation: newRotation, colours: tile.colours})
     }), [Tiles]))
-    const Instructions = _state.setObject(pathTo('Instructions'), new Dialog.State(stateProps(pathTo('Instructions')).initiallyOpen(true).props))
+    const Instructions = _state.setObject(pathTo('Instructions'), new Dialog.State(stateProps(pathTo('Instructions')).initiallyOpen(false).props))
     const StatsLayout = _state.setObject(pathTo('StatsLayout'), new Block.State(stateProps(pathTo('StatsLayout')).props))
     const ReadyPanel = _state.setObject(pathTo('ReadyPanel'), new Block.State(stateProps(pathTo('ReadyPanel')).props))
     const PausePanel = _state.setObject(pathTo('PausePanel'), new Block.State(stateProps(pathTo('PausePanel')).props))
@@ -194,15 +194,15 @@ function MainPage(props) {
 Once you have a certain number of tiles matching all their neighbours, you earn points for each tile.
 
 
-If you get all the tiles to match, you earn a bonus.  Or if you get stuck, you can keep the points you have and start a new set of tiles.
+If you get all the tiles to match, you earn a bonus, and you can have another turn with new tiles.  Or if you get stuck, you can keep the points you have and start a new set of tiles.
 
 
-Click New Tiles to start again with a new set of tiles.
+Whenever you need new tiles, just click New Tiles. 
 
 
 <b>Tips</b>
 <ul>
-<li>Tiles with only one colour in common must match on that side</li>
+<li>A pair of tiles with only one colour in common must match on that side</li>
 </ul>
 
 You have 3 minutes to complete as many sets as you can.`).props),

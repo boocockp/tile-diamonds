@@ -321,7 +321,7 @@
               "id": "dialog_1",
               "name": "Instructions",
               "properties": {
-                "initiallyOpen": true,
+                "initiallyOpen": false,
                 "layout": "vertical",
                 "showCloseButton": true,
                 "styles": {
@@ -333,7 +333,7 @@
                   "id": "text_5",
                   "name": "Instructions Text",
                   "properties": {
-                    "content": "The aim is to rotate all the tiles (by clicking on them) so that the colours match at each side, and form a diamond across each tile edge.\n\n\nOnce you have a certain number of tiles matching all their neighbours, you earn points for each tile.\n\n\nIf you get all the tiles to match, you earn a bonus.  Or if you get stuck, you can keep the points you have and start a new set of tiles.\n\n\nClick New Tiles to start again with a new set of tiles.\n\n\n<b>Tips</b>\n<ul>\n<li>Tiles with only one colour in common must match on that side</li>\n</ul>\n\nYou have 3 minutes to complete as many sets as you can.",
+                    "content": "The aim is to rotate all the tiles (by clicking on them) so that the colours match at each side, and form a diamond across each tile edge.\n\n\nOnce you have a certain number of tiles matching all their neighbours, you earn points for each tile.\n\n\nIf you get all the tiles to match, you earn a bonus, and you can have another turn with new tiles.  Or if you get stuck, you can keep the points you have and start a new set of tiles.\n\n\nWhenever you need new tiles, just click New Tiles. \n\n\n<b>Tips</b>\n<ul>\n<li>A pair of tiles with only one colour in common must match on that side</li>\n</ul>\n\nYou have 3 minutes to complete as many sets as you can.",
                     "allowHtml": true
                   },
                   "kind": "Text"
