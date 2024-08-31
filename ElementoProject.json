@@ -1,0 +1,858 @@
+{
+  "id": "project_1",
+  "name": "Tile Diamonds",
+  "properties": {},
+  "elements": [
+    {
+      "id": "app_1",
+      "name": "Main App",
+      "properties": {
+        "maxWidth": "500px"
+      },
+      "elements": [
+        {
+          "id": "page_1",
+          "name": "Main Page",
+          "properties": {},
+          "elements": [
+            {
+              "id": "text_1",
+              "name": "Title",
+              "properties": {
+                "content": "Tile Diamonds",
+                "styles": {
+                  "fontSize": "32",
+                  "fontFamily": "fantasy",
+                  "color": "#039a03"
+                }
+              },
+              "kind": "Text"
+            },
+            {
+              "id": "timer_2",
+              "name": "Game Timer",
+              "properties": {
+                "period": 180,
+                "interval": 1,
+                "show": false,
+                "endAction": {
+                  "expr": "EndGame()"
+                }
+              },
+              "kind": "Timer"
+            },
+            {
+              "id": "data_4",
+              "name": "Status",
+              "properties": {
+                "initialValue": {
+                  "expr": "'Ready'"
+                }
+              },
+              "kind": "Data"
+            },
+            {
+              "id": "data_5",
+              "name": "Score",
+              "properties": {
+                "initialValue": {
+                  "expr": "0"
+                }
+              },
+              "kind": "Data"
+            },
+            {
+              "id": "calculation_1",
+              "name": "Rows",
+              "properties": {
+                "calculation": {
+                  "expr": "4"
+                },
+                "show": false
+              },
+              "kind": "Calculation"
+            },
+            {
+              "id": "calculation_2",
+              "name": "Cols",
+              "properties": {
+                "calculation": {
+                  "expr": "4"
+                },
+                "show": false
+              },
+              "kind": "Calculation"
+            },
+            {
+              "id": "calculation_4",
+              "name": "Tile Count",
+              "properties": {
+                "calculation": {
+                  "expr": "Rows * Cols"
+                },
+                "show": false
+              },
+              "kind": "Calculation"
+            },
+            {
+              "id": "calculation_3",
+              "name": "Colours",
+              "properties": {
+                "calculation": {
+                  "expr": "['blue', 'red', 'yellow', 'green']"
+                },
+                "show": false
+              },
+              "kind": "Calculation"
+            },
+            {
+              "id": "calculation_7",
+              "name": "Tile Match Count",
+              "properties": {
+                "calculation": {
+                  "expr": "Count(Tiles, TileMatchesSides($item, $index))"
+                },
+                "show": false
+              },
+              "kind": "Calculation"
+            },
+            {
+              "id": "calculation_9",
+              "name": "Is Round Won",
+              "properties": {
+                "calculation": {
+                  "expr": "Eq(TileMatchCount, TileCount)"
+                },
+                "show": false
+              },
+              "kind": "Calculation"
+            },
+            {
+              "id": "calculation_11",
+              "name": "Is Round Complete",
+              "properties": {
+                "calculation": {
+                  "expr": "Or(IsRoundWon, Not(GameRunning))"
+                },
+                "show": false
+              },
+              "kind": "Calculation"
+            },
+            {
+              "id": "calculation_8",
+              "name": "When Round Complete",
+              "properties": {
+                "calculation": {
+                  "expr": "IsRoundComplete"
+                },
+                "whenTrueAction": {
+                  "expr": "EndTileSet()"
+                },
+                "show": false
+              },
+              "kind": "Calculation"
+            },
+            {
+              "id": "calculation_12",
+              "name": "Round In Play",
+              "properties": {
+                "calculation": {
+                  "expr": "Not(IsRoundComplete)"
+                },
+                "show": false
+              },
+              "kind": "Calculation"
+            },
+            {
+              "id": "data_1",
+              "name": "Tiles",
+              "properties": {},
+              "kind": "Data"
+            },
+            {
+              "id": "data_2",
+              "name": "Horizontal Sides",
+              "properties": {},
+              "kind": "Data"
+            },
+            {
+              "id": "data_3",
+              "name": "Vertical Sides",
+              "properties": {},
+              "kind": "Data"
+            },
+            {
+              "id": "function_14",
+              "name": "Side Colour",
+              "properties": {
+                "input1": "tile",
+                "input2": "position",
+                "calculation": {
+                  "expr": "let colourIndex = (position + tile.rotation) % 4\ntile.colours[colourIndex]"
+                }
+              },
+              "kind": "Function"
+            },
+            {
+              "id": "function_16",
+              "name": "Next Tile",
+              "properties": {
+                "input1": "index",
+                "input2": "position",
+                "calculation": {
+                  "expr": "let rowPosition = index % Cols\nFirstNotNull(\n If( position == 0, ItemAt(Tiles, index - Cols)),\n If( position == 1 && rowPosition < Cols - 1, ItemAt(Tiles, index + 1)),\n If( position == 2, ItemAt(Tiles, index + Cols)),\n If( position == 3 && rowPosition > 0, ItemAt(Tiles, index - 1))\n)"
+                }
+              },
+              "kind": "Function"
+            },
+            {
+              "id": "function_3",
+              "name": "Tile Matches Sides",
+              "properties": {
+                "input1": "tile",
+                "input2": "index",
+                "calculation": {
+                  "expr": "let top = 0, right = 1, bottom = 2, left = 3\nlet topTile = NextTile(index, top)\nlet rightTile = NextTile(index, right)\nlet bottomTile = NextTile(index, bottom)\nlet leftTile = NextTile(index, left) \n\nlet topOk = topTile == null || SideColour(topTile, bottom) == SideColour(tile, top)\nlet bottomOk = bottomTile == null || SideColour(bottomTile, top) == SideColour(tile, bottom)\nlet leftOk = leftTile == null || SideColour(leftTile, right) == SideColour(tile, left)\nlet rightOk = rightTile == null || SideColour(rightTile, left) == SideColour(tile, right)\nAnd(topOk, bottomOk, leftOk, rightOk)\n"
+                }
+              },
+              "kind": "Function"
+            },
+            {
+              "id": "function_5",
+              "name": "Points",
+              "properties": {
+                "input1": "word",
+                "calculation": {
+                  "expr": "let bonus = If(IsRoundWon, 12, 0)\nlet pointsPerTile = If(TileMatchCount >= TileCount / 2, 3, 0)\nTileMatchCount * pointsPerTile + bonus"
+                }
+              },
+              "kind": "Function"
+            },
+            {
+              "id": "calculation_5",
+              "name": "Game Running",
+              "properties": {
+                "calculation": {
+                  "expr": "Or(Status == 'Playing', Status == 'Paused')"
+                },
+                "show": false
+              },
+              "kind": "Calculation"
+            },
+            {
+              "id": "function_6",
+              "name": "Start New Game",
+              "properties": {
+                "calculation": {
+                  "expr": "Reset(Score)\nReset(GameTimer)\nSet(Status, 'Playing')\nStartNewTileSet()\nGameTimer.Start()"
+                },
+                "action": true
+              },
+              "kind": "Function"
+            },
+            {
+              "id": "function_11",
+              "name": "Start New Tile Set",
+              "properties": {
+                "calculation": {
+                  "expr": "let horizSideCount = Cols * (Rows + 1)\nlet vertSideCount = Rows * (Cols + 1)\nlet horizontalSides = ForEach(Range(0, horizSideCount - 1), RandomFrom(Colours))\nlet verticalSides = ForEach(Range(0, vertSideCount - 1), RandomFrom(Colours))\nSet(Tiles, ForEach(Range(0, TileCount - 1), Record('rotation', Random(3), 'colours', List(\n horizontalSides[$index],\n verticalSides[$index + 1],\n horizontalSides[$index + Cols],\n verticalSides[$index]\n))))"
+                },
+                "action": true
+              },
+              "kind": "Function"
+            },
+            {
+              "id": "function_12",
+              "name": "End Tile Set",
+              "properties": {
+                "action": true,
+                "calculation": {
+                  "expr": "Set(Score, Score + Points())"
+                }
+              },
+              "kind": "Function"
+            },
+            {
+              "id": "function_7",
+              "name": "End Game",
+              "properties": {
+                "action": true,
+                "calculation": {
+                  "expr": "Set(Status, 'Ended')"
+                }
+              },
+              "kind": "Function"
+            },
+            {
+              "id": "function_8",
+              "name": "Pause Game",
+              "properties": {
+                "action": true,
+                "calculation": {
+                  "expr": "Set(Status, 'Paused')\nGameTimer.Stop()"
+                }
+              },
+              "kind": "Function"
+            },
+            {
+              "id": "function_9",
+              "name": "Continue Game",
+              "properties": {
+                "action": true,
+                "calculation": {
+                  "expr": "Set(Status, 'Playing')\nGameTimer.Start()"
+                }
+              },
+              "kind": "Function"
+            },
+            {
+              "id": "function_13",
+              "name": "Rotate Tile",
+              "properties": {
+                "input1": "tileIndex",
+                "action": true,
+                "calculation": {
+                  "expr": "let tile = ItemAt(Tiles, tileIndex)\nlet newRotation = If(tile.rotation == 0, 3, tile.rotation - 1)\nSetWithUpdates(Tiles, tileIndex, {rotation: newRotation, colours: tile.colours})"
+                }
+              },
+              "kind": "Function"
+            },
+            {
+              "id": "dialog_1",
+              "name": "Instructions",
+              "properties": {
+                "initiallyOpen": true,
+                "layout": "vertical",
+                "showCloseButton": true,
+                "styles": {
+                  "padding": "2em"
+                }
+              },
+              "elements": [
+                {
+                  "id": "text_5",
+                  "name": "Instructions Text",
+                  "properties": {
+                    "content": "The aim is to rotate all the tiles (by clicking on them) so that the colours match at each side, and form a diamond across each tile edge.\n\n\nOnce you have a certain number of tiles matching all their neighbours, you earn points for each tile.\n\n\nIf you get all the tiles to match, you earn a bonus.  Or if you get stuck, you can keep the points you have and start a new set of tiles.\n\n\nClick New Tiles to start again with a new set of tiles.\n\n\n<b>Tips</b>\n<ul>\n<li>Tiles with only one colour in common must match on that side</li>\n</ul>\n\nYou have 3 minutes to complete as many sets as you can.",
+                    "allowHtml": true
+                  },
+                  "kind": "Text"
+                },
+                {
+                  "id": "button_2",
+                  "name": "Start Game 2",
+                  "properties": {
+                    "action": {
+                      "expr": "StartNewGame()\nInstructions.Close()"
+                    },
+                    "show": {
+                      "expr": "Not(GameRunning)"
+                    },
+                    "content": "Start Game",
+                    "appearance": "filled"
+                  },
+                  "kind": "Button"
+                }
+              ],
+              "kind": "Dialog"
+            },
+            {
+              "id": "block_8",
+              "name": "Stats Layout",
+              "properties": {
+                "layout": "horizontal",
+                "styles": {
+                  "fontSize": "24",
+                  "justifyContent": "space-between",
+                  "width": "100%"
+                }
+              },
+              "elements": [
+                {
+                  "id": "text_6",
+                  "name": "Score Display",
+                  "properties": {
+                    "content": {
+                      "expr": "Score + \" points\""
+                    },
+                    "styles": {
+                      "fontSize": "inherit",
+                      "color": "blue"
+                    },
+                    "show": {
+                      "expr": "Or(GameRunning, Status == 'Ended')"
+                    }
+                  },
+                  "kind": "Text"
+                },
+                {
+                  "id": "text_7",
+                  "name": "Time Display",
+                  "properties": {
+                    "content": {
+                      "expr": "Ceiling(GameTimer. remainingTime) + \"s left\""
+                    },
+                    "styles": {
+                      "fontSize": "inherit",
+                      "color": "green"
+                    },
+                    "show": {
+                      "expr": "GameRunning"
+                    }
+                  },
+                  "kind": "Text"
+                },
+                {
+                  "id": "text_8",
+                  "name": "Game Over",
+                  "properties": {
+                    "content": "Game Over",
+                    "styles": {
+                      "fontSize": "inherit",
+                      "color": "white",
+                      "backgroundColor": "green",
+                      "padding": "0 0.5em",
+                      "borderRadius": "8px"
+                    },
+                    "show": {
+                      "expr": "Status == 'Ended'"
+                    }
+                  },
+                  "kind": "Text"
+                }
+              ],
+              "kind": "Block"
+            },
+            {
+              "id": "block_9",
+              "name": "Ready Panel",
+              "properties": {
+                "show": {
+                  "expr": "Status == 'Ready'"
+                }
+              },
+              "elements": [
+                {
+                  "id": "text_9",
+                  "name": "Title",
+                  "properties": {
+                    "content": "Welcome!",
+                    "styles": {
+                      "color": "#039a03",
+                      "fontFamily": "fantasy",
+                      "fontSize": "28"
+                    }
+                  },
+                  "kind": "Text"
+                },
+                {
+                  "id": "text_10",
+                  "name": "Ready Text",
+                  "properties": {
+                    "content": "Click the tiles to rotate them so that the colours match at every side.\n\nClick Instructions for full details\n\nOr Start Game to dive right in!",
+                    "styles": {
+                      "fontSize": "20"
+                    }
+                  },
+                  "kind": "Text"
+                }
+              ],
+              "kind": "Block"
+            },
+            {
+              "id": "block_10",
+              "name": "Pause Panel",
+              "properties": {
+                "show": {
+                  "expr": "Status == 'Paused'"
+                }
+              },
+              "elements": [
+                {
+                  "id": "text_11",
+                  "name": "Title",
+                  "properties": {
+                    "content": "Paused...",
+                    "styles": {
+                      "color": "#7529df",
+                      "fontFamily": "Luckiest Guy",
+                      "fontSize": "28"
+                    }
+                  },
+                  "kind": "Text"
+                },
+                {
+                  "id": "text_12",
+                  "name": "Pause Text",
+                  "properties": {
+                    "content": "Click Continue Game to carry on",
+                    "styles": {
+                      "fontSize": "20"
+                    }
+                  },
+                  "kind": "Text"
+                }
+              ],
+              "kind": "Block"
+            },
+            {
+              "id": "block_11",
+              "name": "Play Panel",
+              "properties": {
+                "layout": "vertical",
+                "show": {
+                  "expr": "Or(Status == 'Playing', Status == 'Ended')"
+                },
+                "styles": {
+                  "width": "100%"
+                }
+              },
+              "elements": [
+                {
+                  "id": "block_22",
+                  "name": "Tile Grid",
+                  "properties": {
+                    "layout": "horizontal wrapped",
+                    "styles": {
+                      "width": "100%",
+                      "aspectRatio": {
+                        "expr": "Cols/Rows"
+                      },
+                      "maxWidth": "500",
+                      "border": "1px solid gray",
+                      "gap": "0"
+                    }
+                  },
+                  "elements": [
+                    {
+                      "id": "itemset_2",
+                      "name": "Tile Items",
+                      "properties": {
+                        "itemStyles": {
+                          "aspectRatio": "1",
+                          "width": {
+                            "expr": "100 / Cols + '%'"
+                          },
+                          "border": "1px solid blue",
+                          "boxSizing": "border-box"
+                        },
+                        "items": {
+                          "expr": "Tiles"
+                        },
+                        "selectAction": {
+                          "expr": "If(RoundInPlay, RotateTile($itemId))"
+                        },
+                        "selectable": "single"
+                      },
+                      "elements": [
+                        {
+                          "id": "block_21",
+                          "name": "Tile Block",
+                          "properties": {
+                            "styles": {
+                              "backgroundColor": "lightgray",
+                              "width": "100%",
+                              "height": "100%",
+                              "borderStyle": "solid",
+                              "borderLeftColor": "green",
+                              "boxSizing": "border-box",
+                              "maxHeight": "100%"
+                            },
+                            "layout": "positioned"
+                          },
+                          "elements": [
+                            {
+                              "id": "block_17",
+                              "name": "Top Triangle",
+                              "properties": {
+                                "styles": {
+                                  "backgroundColor": {
+                                    "expr": "SideColour2($item, 0)"
+                                  },
+                                  "height": "100%",
+                                  "width": "100%",
+                                  "clipPath": "polygon(2% 0, 50% 49%, 98% 0)",
+                                  "position": "absolute",
+                                  "top": "0",
+                                  "left": "0"
+                                },
+                                "layout": "positioned"
+                              },
+                              "kind": "Block"
+                            },
+                            {
+                              "id": "block_18",
+                              "name": "Right Triangle",
+                              "properties": {
+                                "styles": {
+                                  "backgroundColor": {
+                                    "expr": "SideColour2($item, 1)"
+                                  },
+                                  "height": "100%",
+                                  "width": "100%",
+                                  "clipPath": "polygon(100% 1%, 51% 50%, 100% 98%)",
+                                  "position": "absolute",
+                                  "top": "0",
+                                  "left": "0"
+                                },
+                                "layout": "positioned"
+                              },
+                              "kind": "Block"
+                            },
+                            {
+                              "id": "block_19",
+                              "name": "Bottom Triangle",
+                              "properties": {
+                                "styles": {
+                                  "backgroundColor": {
+                                    "expr": "SideColour2($item, 2)"
+                                  },
+                                  "height": "100%",
+                                  "width": "100%",
+                                  "clipPath": "polygon(1% 100%, 50% 51%, 98% 100%)",
+                                  "position": "absolute",
+                                  "top": "0",
+                                  "left": "0"
+                                },
+                                "layout": "positioned"
+                              },
+                              "kind": "Block"
+                            },
+                            {
+                              "id": "block_20",
+                              "name": "Left Triangle",
+                              "properties": {
+                                "styles": {
+                                  "backgroundColor": {
+                                    "expr": "SideColour2($item, 3)"
+                                  },
+                                  "height": "100%",
+                                  "width": "100%",
+                                  "clipPath": "polygon(0 2%, 49% 50%, 0 98%)",
+                                  "position": "absolute",
+                                  "top": "0",
+                                  "left": "0"
+                                },
+                                "layout": "positioned"
+                              },
+                              "kind": "Block"
+                            }
+                          ],
+                          "kind": "Block"
+                        },
+                        {
+                          "id": "function_15",
+                          "name": "Side Colour 2",
+                          "properties": {
+                            "input1": "tile",
+                            "input2": "position",
+                            "calculation": {
+                              "expr": "let colourIndex = (position + tile.rotation) % 4\ntile.colours[colourIndex]"
+                            }
+                          },
+                          "kind": "Function"
+                        }
+                      ],
+                      "kind": "ItemSet"
+                    }
+                  ],
+                  "kind": "Block"
+                },
+                {
+                  "id": "block_25",
+                  "name": "Ended Panel",
+                  "properties": {
+                    "show": {
+                      "expr": "Status == 'Ended'"
+                    },
+                    "styles": {
+                      "position": "absolute",
+                      "left": "50%",
+                      "translate": "-50% -50%",
+                      "top": "50%",
+                      "backgroundColor": "lightblue",
+                      "padding": "1em",
+                      "borderRadius": "10px",
+                      "border": "2px solid blue",
+                      "opacity": "1",
+                      "minWidth": "20em"
+                    }
+                  },
+                  "elements": [
+                    {
+                      "id": "text_19",
+                      "name": "Title",
+                      "properties": {
+                        "content": "Congratulations!",
+                        "styles": {
+                          "fontFamily": "fantasy, Arial",
+                          "fontSize": "28",
+                          "color": "#039a03"
+                        }
+                      },
+                      "kind": "Text"
+                    },
+                    {
+                      "id": "text_20",
+                      "name": "Score",
+                      "properties": {
+                        "content": {
+                          "expr": "'You have scored ' + Score + ' points!'"
+                        }
+                      },
+                      "kind": "Text"
+                    },
+                    {
+                      "id": "text_21",
+                      "name": "What next",
+                      "properties": {
+                        "content": "Click Start Game to have another go"
+                      },
+                      "kind": "Text"
+                    }
+                  ],
+                  "kind": "Block"
+                },
+                {
+                  "id": "text_18",
+                  "name": "Round In Progress",
+                  "properties": {
+                    "content": {
+                      "expr": "Points() + ' points for these tiles so far'"
+                    },
+                    "show": {
+                      "expr": "RoundInPlay"
+                    }
+                  },
+                  "kind": "Text"
+                },
+                {
+                  "id": "text_17",
+                  "name": "Round Won",
+                  "properties": {
+                    "content": {
+                      "expr": "'All Correct &nbsp &mdash; &nbsp ' + Points() + ' points added!'"
+                    },
+                    "show": {
+                      "expr": "IsRoundWon"
+                    },
+                    "styles": {
+                      "color": "white",
+                      "backgroundColor": "green",
+                      "fontSize": "24",
+                      "padding": "2px 8px"
+                    },
+                    "allowHtml": true
+                  },
+                  "kind": "Text"
+                },
+                {
+                  "id": "button_8",
+                  "name": "New Tiles",
+                  "properties": {
+                    "action": {
+                      "expr": "If(RoundInPlay, EndTileSet())\nStartNewTileSet()"
+                    },
+                    "show": {
+                      "expr": "Status == 'Playing'"
+                    }
+                  },
+                  "kind": "Button"
+                }
+              ],
+              "kind": "Block"
+            },
+            {
+              "id": "block_24",
+              "name": "Controls Layout",
+              "properties": {
+                "layout": "horizontal"
+              },
+              "elements": [
+                {
+                  "id": "button_3",
+                  "name": "Start Game",
+                  "properties": {
+                    "action": {
+                      "expr": "StartNewGame()"
+                    },
+                    "show": {
+                      "expr": "Not(GameRunning)"
+                    },
+                    "appearance": "filled"
+                  },
+                  "kind": "Button"
+                },
+                {
+                  "id": "button_4",
+                  "name": "Stop Game",
+                  "properties": {
+                    "action": {
+                      "expr": "EndGame()"
+                    },
+                    "show": {
+                      "expr": "GameRunning"
+                    }
+                  },
+                  "kind": "Button"
+                },
+                {
+                  "id": "button_5",
+                  "name": "Pause Game",
+                  "properties": {
+                    "action": {
+                      "expr": "PauseGame()"
+                    },
+                    "show": {
+                      "expr": "Status == 'Playing'"
+                    }
+                  },
+                  "kind": "Button"
+                },
+                {
+                  "id": "button_6",
+                  "name": "Continue Game",
+                  "properties": {
+                    "action": {
+                      "expr": "ContinueGame()"
+                    },
+                    "show": {
+                      "expr": "Status == 'Paused'"
+                    }
+                  },
+                  "kind": "Button"
+                },
+                {
+                  "id": "button_7",
+                  "name": "Instructions",
+                  "properties": {
+                    "action": {
+                      "expr": "Instructions.Show()"
+                    }
+                  },
+                  "kind": "Button"
+                }
+              ],
+              "kind": "Block"
+            }
+          ],
+          "kind": "Page"
+        }
+      ],
+      "kind": "App"
+    },
+    {
+      "id": "_TOOLS",
+      "name": "Tools",
+      "properties": {},
+      "kind": "ToolFolder"
+    },
+    {
+      "id": "_COMPONENTS",
+      "name": "Components",
+      "properties": {},
+      "kind": "ComponentFolder"
+    }
+  ],
+  "kind": "Project"
+}
