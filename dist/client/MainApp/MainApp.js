@@ -188,7 +188,7 @@ function MainPage(props) {
         React.createElement(Data, elProps(pathTo('VerticalSides')).display(false).props),
         React.createElement(Calculation, elProps(pathTo('GameRunning')).show(false).props),
         React.createElement(Dialog, elProps(pathTo('Instructions')).layout('vertical').showCloseButton(true).styles(elProps(pathTo('Instructions.Styles')).padding('2em').props).props,
-            React.createElement(TextElement, elProps(pathTo('InstructionsText')).allowHtml(true).content(`The aim is to rotate all the tiles (by clicking on them) so that the colours match at each side, and form a diamond across each tile edge.
+            React.createElement(TextElement, elProps(pathTo('InstructionsText')).allowHtml(true).content(`Rotate all the tiles (by clicking on them) so that the colours match at each side, and form a diamond across each tile edge.
 
 
 Once you have a certain number of tiles matching all their neighbours, you earn points for each tile.
@@ -197,7 +197,7 @@ Once you have a certain number of tiles matching all their neighbours, you earn 
 If you get all the tiles to match, you earn a bonus, and you can have another turn with new tiles.  Or if you get stuck, you can keep the points you have and start a new set of tiles.
 
 
-Whenever you need new tiles, just click New Tiles. 
+Click New Tiles to start a new set. 
 
 
 <b>Tips</b>
