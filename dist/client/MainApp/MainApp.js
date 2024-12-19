@@ -145,9 +145,7 @@ function MainPage(props) {
         await StartNewRound()
         await GameTimer.Start()
     }), [Score, GameTimer, Status, StartNewRound]))
-    const FinishRound = _state.setObject(pathTo('FinishRound'), React.useCallback(wrapFn(pathTo('FinishRound'), 'calculation', async () => {
-        await If(false, async () => await StartNewRound())
-    }), [StartNewRound]))
+    const FinishRound = _state.setObject(pathTo('FinishRound'), React.useCallback(wrapFn(pathTo('FinishRound'), 'calculation', () => {}), []))
     const EndRound = _state.setObject(pathTo('EndRound'), React.useCallback(wrapFn(pathTo('EndRound'), 'calculation', async () => {
         await If(RoundScoresPoints(), () => Set(Score, Score + Points()))
         await FinishRound()

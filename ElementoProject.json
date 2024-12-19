@@ -385,9 +385,6 @@
               "id": "function_27",
               "name": "Finish Round",
               "properties": {
-                "calculation": {
-                  "expr": "If(false, StartNewRound())"
-                },
                 "action": true
               },
               "kind": "Function"
