@@ -44,31 +44,12 @@ function MainPage(props) {
     const Status = _state.setObject(pathTo('Status'), new Data.State(stateProps(pathTo('Status')).value('Ready').props))
     const Score = _state.setObject(pathTo('Score'), new Data.State(stateProps(pathTo('Score')).value(0).props))
     const RoundSkipped = _state.setObject(pathTo('RoundSkipped'), new Data.State(stateProps(pathTo('RoundSkipped')).value(false).props))
+    const RoundScoreAdded = _state.setObject(pathTo('RoundScoreAdded'), new Data.State(stateProps(pathTo('RoundScoreAdded')).value(false).props))
     const GameRunning = _state.setObject(pathTo('GameRunning'), new Calculation.State(stateProps(pathTo('GameRunning')).value(Or(Status == 'Playing', Status == 'Paused')).props))
     const SendScore = _state.setObject(pathTo('SendScore'), React.useCallback(wrapFn(pathTo('SendScore'), 'calculation', async (score) => {
         Log('Send Score', score)
         await SendMessage('parent', Record('score', score, 'url', (await CurrentUrl()).text))
     }), []))
-    const EndGame = _state.setObject(pathTo('EndGame'), React.useCallback(wrapFn(pathTo('EndGame'), 'calculation', async () => {
-        await SendScore(Score)
-        Set(Status, 'Ended')
-    }), [SendScore, Score, Status]))
-    const GameTimer_endAction = React.useCallback(wrapFn(pathTo('GameTimer'), 'endAction', async ($timer) => {
-        await EndGame()
-    }), [EndGame])
-    const GameTimer = _state.setObject(pathTo('GameTimer'), new Timer.State(stateProps(pathTo('GameTimer')).period(180).interval(1).endAction(GameTimer_endAction).props))
-    const PauseGame = _state.setObject(pathTo('PauseGame'), React.useCallback(wrapFn(pathTo('PauseGame'), 'calculation', async () => {
-        Set(Status, 'Paused')
-        await GameTimer.Stop()
-    }), [Status, GameTimer]))
-    const ContinueGame = _state.setObject(pathTo('ContinueGame'), React.useCallback(wrapFn(pathTo('ContinueGame'), 'calculation', async () => {
-        Set(Status, 'Playing')
-        await GameTimer.Start()
-    }), [Status, GameTimer]))
-    const StopGame = _state.setObject(pathTo('StopGame'), React.useCallback(wrapFn(pathTo('StopGame'), 'calculation', async () => {
-        await GameTimer.Stop()
-        await EndGame()
-    }), [GameTimer, EndGame]))
     const Rows = _state.setObject(pathTo('Rows'), new Calculation.State(stateProps(pathTo('Rows')).value(4).props))
     const Cols = _state.setObject(pathTo('Cols'), new Calculation.State(stateProps(pathTo('Cols')).value(4).props))
     const TileCount = _state.setObject(pathTo('TileCount'), new Calculation.State(stateProps(pathTo('TileCount')).value(Rows * Cols).props))
@@ -122,6 +103,32 @@ function MainPage(props) {
     const RoundScoresPoints = _state.setObject(pathTo('RoundScoresPoints'), React.useCallback(wrapFn(pathTo('RoundScoresPoints'), 'calculation', () => {
         return true
     }), []))
+    const AddRoundScore = _state.setObject(pathTo('AddRoundScore'), React.useCallback(wrapFn(pathTo('AddRoundScore'), 'calculation', async () => {
+        let needToAddScore = And(Not(RoundScoreAdded), RoundScoresPoints())
+        await If(needToAddScore, () => Set(Score, Score + Points()))
+        Set(RoundScoreAdded, true)
+    }), [RoundScoreAdded, RoundScoresPoints, Score, Points]))
+    const EndGame = _state.setObject(pathTo('EndGame'), React.useCallback(wrapFn(pathTo('EndGame'), 'calculation', async () => {
+        await AddRoundScore()
+        await SendScore(Score)
+        Set(Status, 'Ended')
+    }), [AddRoundScore, SendScore, Score, Status]))
+    const GameTimer_endAction = React.useCallback(wrapFn(pathTo('GameTimer'), 'endAction', async ($timer) => {
+        await EndGame()
+    }), [EndGame])
+    const GameTimer = _state.setObject(pathTo('GameTimer'), new Timer.State(stateProps(pathTo('GameTimer')).period(180).interval(1).endAction(GameTimer_endAction).props))
+    const PauseGame = _state.setObject(pathTo('PauseGame'), React.useCallback(wrapFn(pathTo('PauseGame'), 'calculation', async () => {
+        Set(Status, 'Paused')
+        await GameTimer.Stop()
+    }), [Status, GameTimer]))
+    const ContinueGame = _state.setObject(pathTo('ContinueGame'), React.useCallback(wrapFn(pathTo('ContinueGame'), 'calculation', async () => {
+        Set(Status, 'Playing')
+        await GameTimer.Start()
+    }), [Status, GameTimer]))
+    const StopGame = _state.setObject(pathTo('StopGame'), React.useCallback(wrapFn(pathTo('StopGame'), 'calculation', async () => {
+        await GameTimer.Stop()
+        await EndGame()
+    }), [GameTimer, EndGame]))
     const SetupNewRound = _state.setObject(pathTo('SetupNewRound'), React.useCallback(wrapFn(pathTo('SetupNewRound'), 'calculation', () => {
         let horizSideCount = Cols * (Rows + 1)
         let vertSideCount = Rows * (Cols + 1)
@@ -135,9 +142,9 @@ function MainPage(props) {
         ))))
     }), [Cols, Rows, Colours, Tiles, TileCount]))
     const StartNewRound = _state.setObject(pathTo('StartNewRound'), React.useCallback(wrapFn(pathTo('StartNewRound'), 'calculation', async () => {
-        Reset(RoundSkipped)
+        Reset(RoundSkipped, RoundScoreAdded)
         await SetupNewRound()
-    }), [RoundSkipped, SetupNewRound]))
+    }), [RoundSkipped, RoundScoreAdded, SetupNewRound]))
     const StartNewGame = _state.setObject(pathTo('StartNewGame'), React.useCallback(wrapFn(pathTo('StartNewGame'), 'calculation', async () => {
         Reset(Score)
         Reset(GameTimer)
@@ -147,9 +154,9 @@ function MainPage(props) {
     }), [Score, GameTimer, Status, StartNewRound]))
     const FinishRound = _state.setObject(pathTo('FinishRound'), React.useCallback(wrapFn(pathTo('FinishRound'), 'calculation', () => {}), []))
     const EndRound = _state.setObject(pathTo('EndRound'), React.useCallback(wrapFn(pathTo('EndRound'), 'calculation', async () => {
-        await If(RoundScoresPoints(), () => Set(Score, Score + Points()))
+        await AddRoundScore()
         await FinishRound()
-    }), [RoundScoresPoints, Score, Points, FinishRound]))
+    }), [AddRoundScore, FinishRound]))
     const WhenRoundComplete_whenTrueAction = React.useCallback(wrapFn(pathTo('WhenRoundComplete'), 'whenTrueAction', async () => {
         await EndRound()
     }), [EndRound])
@@ -207,6 +214,7 @@ function MainPage(props) {
         React.createElement(Calculation, elProps(pathTo('WhenRoundComplete')).show(false).props),
         React.createElement(Calculation, elProps(pathTo('IsRoundComplete')).show(false).props),
         React.createElement(Calculation, elProps(pathTo('RoundInPlay')).show(false).props),
+        React.createElement(Data, elProps(pathTo('RoundScoreAdded')).display(false).props),
         React.createElement(Calculation, elProps(pathTo('GameRunning')).show(false).props),
         React.createElement(Timer, elProps(pathTo('GameTimer')).show(false).props),
         React.createElement(Calculation, elProps(pathTo('Rows')).show(false).props),

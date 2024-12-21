@@ -108,6 +108,16 @@
               "kind": "Calculation"
             },
             {
+              "id": "data_7",
+              "name": "Round Score Added",
+              "properties": {
+                "initialValue": {
+                  "expr": "false"
+                }
+              },
+              "kind": "Data"
+            },
+            {
               "id": "calculation_13",
               "name": "Game Running",
               "properties": {
@@ -147,7 +157,7 @@
               "name": "Start New Round",
               "properties": {
                 "calculation": {
-                  "expr": "Reset(RoundSkipped)\nSetupNewRound()"
+                  "expr": "Reset(RoundSkipped, RoundScoreAdded)\nSetupNewRound()"
                 },
                 "action": true
               },
@@ -159,7 +169,18 @@
               "properties": {
                 "action": true,
                 "calculation": {
-                  "expr": "If(RoundScoresPoints(), Set(Score, Score + Points()))\nFinishRound()"
+                  "expr": "AddRoundScore()\nFinishRound()"
+                }
+              },
+              "kind": "Function"
+            },
+            {
+              "id": "function_29",
+              "name": "Add Round Score",
+              "properties": {
+                "action": true,
+                "calculation": {
+                  "expr": "let needToAddScore = And(Not(RoundScoreAdded), RoundScoresPoints())\nIf(needToAddScore, Set(Score, Score + Points()))\nSet(RoundScoreAdded, true)"
                 }
               },
               "kind": "Function"
@@ -203,7 +224,7 @@
               "properties": {
                 "action": true,
                 "calculation": {
-                  "expr": "SendScore(Score)\nSet(Status, 'Ended') "
+                  "expr": "AddRoundScore()\nSendScore(Score)\nSet(Status, 'Ended') "
                 }
               },
               "kind": "Function"
